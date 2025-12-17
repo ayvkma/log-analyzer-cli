@@ -111,21 +111,26 @@ while True:
         
         for ip in ip_to_times:
             times = ip_to_times[ip]
+            if len(times) < number_of_reqs:
+                continue
             times.sort()
             
-            total_reqs = 1
+            left = 0
+            right = 1
             
-            start = 0
-            end = len(times) - 1
+            max_total_cons_reqs = 1
             
-            while start < end:
-                if (times[end] - times[start]).total_seconds() > duration:
-                    end -= 1
+            # sliding window implementation to determine the reqs in a time window
+            while right < len(times):
+                if (times[right] - times[left]).total_seconds() <= duration:
+                    right += 1
                 else:
-                    total_reqs += 1
-                    start += 1
-          
-            if total_reqs >= number_of_reqs:
+                    max_total_cons_reqs = max(max_total_cons_reqs, right - left)
+                    left += 1
+                    
+            max_total_cons_reqs = max(max_total_cons_reqs, right - left)
+            
+            if max_total_cons_reqs >= number_of_reqs:
                 result_ips.append(ip)
         
         print("-----------------------------------------------------------------------\n")
